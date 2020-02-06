@@ -1,20 +1,24 @@
 # Explainable Reinforcement Learning: Visual Policy Rationalizations Using Grad-CAM
-This reposity is holds the code needed to reproduce the results for my thesis.
+This reposity is an adaptation of https://github.com/lweitkamp/rl_rationalizations, who modifed GradCAM for A3C and trained the A3C models.
 The Grad-CAM implementation used is based on https://github.com/kazuto1011/grad-cam-pytorch,
 the A3C implementation is based on https://github.com/ikostrikov/pytorch-a3c.
 
 ## Examples
-Some example analysis can be found [here](https://lweitkamp.github.io/thesis2018.html).
+Some example analysis of the original author can be found [here](https://lweitkamp.github.io/thesis2018.html).
 
 ## How to use the code
-Note that it is still a work in progress, but eventually it should look like this:
+This command plays a portion of an episode of a game (idk if that's the correct terminology but you know what I mean) using 
+a pretrained model and saves the gradcams for each state/action at layer GCAM_LAYER (which would default to features.elu4). You can visualize these results [here](Visualize.ipynb).
+
+You can choose to either used a fully trained model or a half trained model (seaquest only has a fully trained model)
 
 ```
-python3 main.py --env-name ENV_NAME --gradcam_layer GCAM_LAYER
+python3 main.py --env [environment name] --half [use half trained]
 ```
-
-This command should run an episode of ENV_NAME using the pretrained models and collect Grad-CAM outputs
-for each state/action at layer GCAM_LAYER (which would default to features.elu4).
+Here's an example for pong:
+```
+python3 main.py --env Pong
+```
 
 
 ## trained models
