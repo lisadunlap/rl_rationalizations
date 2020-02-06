@@ -69,7 +69,7 @@ class ActorCritic(torch.nn.Module):
 
         self.lstm.bias_ih.data.fill_(0)
         self.lstm.bias_hh.data.fill_(0)
-        self.train()
+        #self.train()
 
 
     def forward(self, x, hx, cx):

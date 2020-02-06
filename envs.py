@@ -24,17 +24,17 @@ def _process_frame42(frame):
     # we resize directly we lose pixels that, when mapped to 42x42,
     # aren't close enough to the pixel boundary.
     frame = cv2.resize(frame, (80, 80))
+    old_frame = frame
     frame = frame.mean(2, keepdims=True)
     frame = frame.astype(np.float32)
     frame *= (1.0 / 255.0)
     frame = np.moveaxis(frame, -1, 0)
-    return frame
+    return (frame, old_frame)
 
 
 class AtariRescale42x42(gym.ObservationWrapper):
     def __init__(self, env=None):
         super(AtariRescale42x42, self).__init__(env)
-        #self.observation_space = Box(0.0, 1.0, [1, 42, 42], dtype = np.float32)
         self.observation_space = Box(0.0, 1.0, [1, 80, 80], dtype = np.float32)
 
     def observation(self, observation):
@@ -49,7 +49,8 @@ class NormalizedEnv(gym.ObservationWrapper):
         self.alpha = 0.9999
         self.num_steps = 0
 
-    def observation(self, observation):
+    def observation(self, observations):
+        observation = observations[0]
         self.num_steps += 1
         self.state_mean = self.state_mean * self.alpha + \
             observation.mean() * (1 - self.alpha)
@@ -59,4 +60,4 @@ class NormalizedEnv(gym.ObservationWrapper):
         unbiased_mean = self.state_mean / (1 - pow(self.alpha, self.num_steps))
         unbiased_std = self.state_std / (1 - pow(self.alpha, self.num_steps))
 
-        return (observation - unbiased_mean) / (unbiased_std + 1e-8)
+        return ((observation - unbiased_mean) / (unbiased_std + 1e-8), observations[1])
