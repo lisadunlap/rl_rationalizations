@@ -22,11 +22,11 @@ import matplotlib as mpl ; mpl.use("Agg")
 from mpl_toolkits.axes_grid1 import ImageGrid
 import cv2
 import argparse
-
-from play import *
+import os
+#from play import *
 from Grad_CAM import Grad_CAM
 from model import ActorCritic
-from rollout import *
+#from rollout import *
 from test import test
 from envs import *
 
@@ -70,6 +70,6 @@ if __name__== "__main__":
     _ = model.load_state_dict(torch.load((load_dir)))
     torch.manual_seed(1)
     print('testing...')
-    
+
     # run simulation and generate gradcams for every action
     history = test(env_name, model)
