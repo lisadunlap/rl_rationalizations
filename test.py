@@ -14,14 +14,14 @@ from model import ActorCritic
 
 rescale = lambda image: np.uint8(((image-np.min(image))/np.max((image-np.min(image))))*255)
 
-def get_cam(img, mask):
+def get_cam(img, mask, maximum):
 
     '''
     Place MASK heatmap on IMG
     '''
     h, w, _ = img.shape
     mask = cv2.resize(mask, (w, h))
-    heatmap = cv2.cvtColor(cv2.applyColorMap(np.uint8((mask / np.max(mask)) * 255.0), cv2.COLORMAP_JET),
+    heatmap = cv2.cvtColor(cv2.applyColorMap(np.uint8((mask / maximum) * 255.0), cv2.COLORMAP_JET),
                            cv2.COLOR_BGR2RGB)
     alpha = .4
     cam = heatmap*alpha + np.float32(img)*(1-alpha)
@@ -54,6 +54,7 @@ def test(env_name, shared_model, max_episode_length=1000):
     # a quick hack to prevent the agent from stucking
     actions = deque(maxlen=100)
     episode_length = 0
+    maximum = 0
     while True:
         episode_length += 1
         # Sync with the shared model
@@ -75,8 +76,13 @@ def test(env_name, shared_model, max_episode_length=1000):
         # compute gradcams
         gcam.backward(idx=ids[0])
         regions = gcam.generate(target_layer='features.elu4')
-        cam = get_cam(frame, regions)
+        # maximums per game
+        # seaquest - 58.62
+        # pong - 27.18
+        # beam rider - 26.756956
+        cam = get_cam(frame, regions, maximum=26.756956)
         filename = "{0}/{1}-{2}.png".format(env_name, episode_length, action_labels[ids[0]])
+        maximum = max([np.max(regions), maximum])
         cv2.imwrite(filename, cam)
 
         done = done or episode_length >= max_episode_length
@@ -97,6 +103,7 @@ def test(env_name, shared_model, max_episode_length=1000):
             episode_length = 0
             actions.clear()
             state = env.reset()
+            print('='*30, maximum)
             return history
 
         state = torch.from_numpy(state)

@@ -128,7 +128,8 @@ class Grad_CAM(_PropagationBase):
         gcam = (fmaps[0] * weights[0].data).sum(dim=0)
         gcam = torch.clamp(gcam, min=0.)
 
-        gcam -= gcam.min()
-        gcam /= gcam.max()
+        # gcam -= gcam.min()
+        gcam = torch.max(gcam, torch.tensor(0.))
+        # gcam /= gcam.max()
 
         return gcam.cpu().numpy()
